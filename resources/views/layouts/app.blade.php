@@ -35,6 +35,10 @@
             <!-- Page Content -->
             <main>
                 {{ $slot }}
+                <x-toast-success />
+                <x-toast-error />
+                <x-toast-warning />
+                <x-toast-danger />
             </main>
         </div>
 

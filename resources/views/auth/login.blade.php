@@ -1,7 +1,14 @@
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
-            <x-authentication-card-logo />
+{{--            <x-authentication-card-logo />--}}
+            <div class="flex flex-col gap-2 items-center justify-center mt-8 p-4 pb-2 rounded-lg border-green-400 bg-white shadow-sm">
+                <x-application-mark class="w-64" />
+                <div class="text-lg px-1 rounded-md w-fit font-bold text-green-500/50">Student Management System</div>
+            </div>
+
+
+
         </x-slot>
 
         <x-validation-errors class="mb-4" />
