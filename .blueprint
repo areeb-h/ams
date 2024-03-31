@@ -1,0 +1,92 @@
+created:
+    - app/Http/Controllers/StudentController.php
+    - app/Http/Controllers/CourseController.php
+    - app/Http/Controllers/TeacherController.php
+    - app/Http/Controllers/StudySessionController.php
+    - app/Http/Controllers/StudyGroupController.php
+    - app/Http/Controllers/AttendanceController.php
+    - app/Http/Controllers/UserController.php
+    - database/factories/StudentFactory.php
+    - database/factories/CourseFactory.php
+    - database/factories/TeacherFactory.php
+    - database/factories/StudySessionFactory.php
+    - database/factories/StudyGroupFactory.php
+    - database/factories/AttendanceFactory.php
+    - database/migrations/2024_03_25_084856_create_students_table.php
+    - database/migrations/2024_03_25_084857_create_courses_table.php
+    - database/migrations/2024_03_25_084858_create_teachers_table.php
+    - database/migrations/2024_03_25_084859_create_study_sessions_table.php
+    - database/migrations/2024_03_25_084900_create_study_groups_table.php
+    - database/migrations/2024_03_25_084901_create_attendances_table.php
+    - database/migrations/2024_03_25_084902_create_course_student_table.php
+    - database/migrations/2024_03_25_084903_create_course_teacher_table.php
+    - database/migrations/2024_03_25_084904_create_study_session_teacher_table.php
+    - database/migrations/2024_03_25_084905_create_student_study_session_table.php
+    - database/migrations/2024_03_25_084906_create_course_study_session_table.php
+    - database/migrations/2024_03_25_084907_create_student_study_group_table.php
+    - database/migrations/2024_03_25_084908_create_study_group_teacher_table.php
+    - app/Models/Student.php
+    - app/Models/Course.php
+    - app/Models/Teacher.php
+    - app/Models/StudySession.php
+    - app/Models/StudyGroup.php
+    - app/Models/Attendance.php
+    - tests/Feature/Http/Controllers/StudentControllerTest.php
+    - tests/Feature/Http/Controllers/CourseControllerTest.php
+    - tests/Feature/Http/Controllers/TeacherControllerTest.php
+    - tests/Feature/Http/Controllers/StudySessionControllerTest.php
+    - tests/Feature/Http/Controllers/StudyGroupControllerTest.php
+    - tests/Feature/Http/Controllers/AttendanceControllerTest.php
+    - tests/Feature/Http/Controllers/UserControllerTest.php
+    - app/Http/Requests/StudentStoreRequest.php
+    - app/Http/Requests/StudentUpdateRequest.php
+    - app/Http/Requests/CourseStoreRequest.php
+    - app/Http/Requests/CourseUpdateRequest.php
+    - app/Http/Requests/TeacherStoreRequest.php
+    - app/Http/Requests/TeacherUpdateRequest.php
+    - app/Http/Requests/StudySessionStoreRequest.php
+    - app/Http/Requests/StudySessionUpdateRequest.php
+    - app/Http/Requests/StudyGroupStoreRequest.php
+    - app/Http/Requests/StudyGroupUpdateRequest.php
+    - app/Http/Requests/AttendanceStoreRequest.php
+    - app/Http/Requests/AttendanceUpdateRequest.php
+    - app/Http/Requests/UserStoreRequest.php
+    - app/Http/Requests/UserUpdateRequest.php
+    - resources/views/student/index.blade.php
+    - resources/views/student/create.blade.php
+    - resources/views/student/show.blade.php
+    - resources/views/student/edit.blade.php
+    - resources/views/course/index.blade.php
+    - resources/views/course/create.blade.php
+    - resources/views/course/show.blade.php
+    - resources/views/course/edit.blade.php
+    - resources/views/teacher/index.blade.php
+    - resources/views/teacher/create.blade.php
+    - resources/views/teacher/show.blade.php
+    - resources/views/teacher/edit.blade.php
+    - resources/views/studySession/index.blade.php
+    - resources/views/studySession/create.blade.php
+    - resources/views/studySession/show.blade.php
+    - resources/views/studySession/edit.blade.php
+    - resources/views/studyGroup/index.blade.php
+    - resources/views/studyGroup/create.blade.php
+    - resources/views/studyGroup/show.blade.php
+    - resources/views/studyGroup/edit.blade.php
+    - resources/views/attendance/index.blade.php
+    - resources/views/attendance/create.blade.php
+    - resources/views/attendance/show.blade.php
+    - resources/views/attendance/edit.blade.php
+    - resources/views/user/index.blade.php
+    - resources/views/user/create.blade.php
+    - resources/views/user/show.blade.php
+    - resources/views/user/edit.blade.php
+updated:
+    - routes/web.php
+models:
+    User: { name: string, email: string, email_verified_at: 'timestamp nullable', password: string, two_factor_secret: 'text nullable', two_factor_recovery_codes: 'text nullable', two_factor_confirmed_at: 'timestamp nullable', remember_token: 'string:100 nullable', current_team_id: 'biginteger unsigned nullable', profile_photo_path: 'string:2048 nullable' }
+    Student: { name: string, admission_date: datetime, dob: datetime, status: string, relationships: { belongsToMany: Course } }
+    Course: { name: string, age_range: string, description: string, relationships: { belongsToMany: 'Teacher, Student', hasMany: StudySession } }
+    Teacher: { name: string, city: string, country: string, postal_code: string, relationships: { belongsToMany: 'Course, StudySession', belongsTo: User } }
+    StudySession: { from_time: datetime, to_time: datetime, duration: integer, description: string, relationships: { belongsToMany: 'Student, Teacher, Course', belongsTo: StudyGroup, hasMany: Attendance } }
+    StudyGroup: { from_time: datetime, to_time: datetime, duration: integer, description: string, relationships: { belongsToMany: 'Student, Teacher', hasMany: StudySession } }
+    Attendance: { attended: boolean, relationships: { belongsTo: 'Student, StudySession' } }

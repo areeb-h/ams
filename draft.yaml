@@ -1,0 +1,91 @@
+models:
+  Role:
+    name: string
+    description: string
+    softDeletes: true
+    relationships:
+      hasMany: UserRole
+
+  UserRole:
+    user_id: id
+    role_id: id
+    softDeletes: true
+    relationships:
+      belongsTo: User, Role
+
+  Student:
+    name: string
+    admission_date: datetime
+    dob: string
+    status: string
+    softDeletes: true
+    relationships:
+      belongsToMany: Course
+
+  Course:
+    name: string
+    age_range: string
+    description: string
+    softDeletes: true
+    relationships:
+      belongsToMany: Teacher, Student
+      hasMany: StudySession
+
+  Teacher:
+    name: string
+    city: string
+    country: string
+    postal_code: string
+    softDeletes: true
+    relationships:
+      belongsToMany: Course, StudySession
+      belongsTo: User
+
+  StudySession:
+    from_time: datetime
+    to_time: datetime
+    duration: integer
+    description: string
+    softDeletes: true
+    relationships:
+      belongsToMany: Student, Teacher, Course
+      belongsTo: StudyGroup
+      hasMany: Attendance
+
+  StudyGroup:
+    from_time: datetime
+    to_time: datetime
+    duration: integer
+    description: string
+    softDeletes: true
+    relationships:
+      belongsToMany: Student, Teacher
+      hasMany: StudySession
+
+  Attendance:
+    attended: boolean
+    softDeletes: true
+    relationships:
+      belongsTo: Student, StudySession
+
+  User:
+    relationships:
+      hasMany: UserRole
+      belongsToMany:
+        Role, through: UserRole
+
+controllers:
+  Student:
+    resource: web
+  Course:
+    resource: web
+  Teacher:
+    resource: web
+  StudySession:
+    resource: web
+  StudyGroup:
+    resource: web
+  Attendance:
+    resource: web
+  User:
+    resource: web
