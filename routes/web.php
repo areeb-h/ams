@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudySessionController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Website\WebsiteController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::middleware([
     'auth:sanctum',
@@ -18,15 +21,20 @@ Route::middleware([
 
     Route::prefix('dashboard')->name('dashboard.')->group(function () {
 
-        Route::resource('students', App\Http\Controllers\StudentController::class)->names('students');
-        Route::resource('courses', App\Http\Controllers\CourseController::class)->names('courses');
-        Route::resource('teachers', App\Http\Controllers\TeacherController::class)->names('teachers');
-        Route::resource('sessions', App\Http\Controllers\StudySessionController::class)->names('sessions');
-        Route::resource('attendances', App\Http\Controllers\AttendanceController::class)->names('attendances');
-        Route::resource('users', App\Http\Controllers\UserController::class)->names('users');
+        Route::resource('students', StudentController::class)->names('students');
+        Route::resource('courses', CourseController::class)->names('courses');
+        Route::resource('teachers', TeacherController::class)->names('teachers');
+        Route::resource('sessions', StudySessionController::class)->names('sessions');
+        Route::resource('attendances', AttendanceController::class)->names('attendances');
+        Route::resource('users', UserController::class)->names('users');
 
         Route::patch('students', [App\Http\Controllers\StudentController::class, 'toggleStatus'])->name('students.toggleStatus');
     });
+});
+
+Route::prefix('/')->name('website.')->group(function () {
+    Route::get('', [WebsiteController::class, 'index'])->name('index');
+    Route::get('about', [WebsiteController::class, 'about'])->name('about');
 });
 
 
