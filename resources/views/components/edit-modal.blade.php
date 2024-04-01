@@ -57,7 +57,7 @@
 
                     <div class="flex w-full p-6 justify-between">
                         <x-delete-button :action="$deleteRoute" itemName="student" />
-                        <form action="{{ route('dashboard.students.toggleStatus', $student) }}" method="POST">
+                        <form action="{{ route('dashboard.students.toggleStatus', $entity) }}" method="POST">
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-50 font-semibold">
