@@ -55,8 +55,19 @@
                         </div>
                     </form>
 
-                    <div class="w-full /border-t p-6">
+                    <div class="flex w-full p-6 justify-between">
                         <x-delete-button :action="$deleteRoute" itemName="student" />
+                        <form action="{{ route('dashboard.students.toggleStatus', $student) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-50 font-semibold">
+                                @if($student->status == 1)
+                                    Deactivate (Currently Active)
+                                @else
+                                    Activate (Currently Inactive)
+                                @endif
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

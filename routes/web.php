@@ -25,6 +25,7 @@ Route::middleware([
         Route::resource('attendances', App\Http\Controllers\AttendanceController::class)->names('attendances');
         Route::resource('users', App\Http\Controllers\UserController::class)->names('users');
 
+        Route::patch('students', [App\Http\Controllers\StudentController::class, 'toggleStatus'])->name('students.toggleStatus');
     });
 });
 
