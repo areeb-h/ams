@@ -61,7 +61,7 @@
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-50 font-semibold">
-                                @if($student->status == 1)
+                                @if($entity->status == 1)
                                     Deactivate (Currently Active)
                                 @else
                                     Activate (Currently Inactive)

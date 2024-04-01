@@ -60,16 +60,15 @@ class StudentController extends Controller
         return redirect()->route('students.index');
     }
 
-    public function toggleStatus(Request $request, Student $student): RedirectResponse
+    public function toggleStatus(Student $student): RedirectResponse
     {
-        // Toggle the status
-        $student->status = $student->status == 0 ? 1 : 0;
-        $student->save();
+        $student->update([
+            'status' => $student->status == "0" ? "1" : "0"
+        ]);
 
-        // Flash a success message to the session
         session()->flash('success', 'Student status toggled successfully.');
 
-        // Redirect back to the students index page or wherever you'd like
         return redirect()->route('dashboard.students.index');
     }
+
 }
