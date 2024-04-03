@@ -2,10 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Widgets\CourseOverview;
 use App\Filament\Resources\StudentResource\Widgets\StudentOverview;
-use App\Filament\Resources\UserResource;
 use Exception;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
