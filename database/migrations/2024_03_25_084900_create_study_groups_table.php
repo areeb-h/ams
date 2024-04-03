@@ -14,11 +14,11 @@ return new class extends Migration
     {
         Schema::create('study_groups', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->dateTime('from_time');
             $table->dateTime('to_time');
             $table->string('duration');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->boolean('attended');
+            $table->boolean('attended')->default(0);;
             $table->foreignId('student_id');
             $table->foreignId('study_session_id');
             $table->timestamps();

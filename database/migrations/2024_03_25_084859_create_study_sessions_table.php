@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('study_sessions', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('from_time');
-            $table->dateTime('to_time');
-            $table->integer('duration');
-            $table->string('description');
+            $table->dateTime('from_time')->nullable();
+            $table->dateTime('to_time')->nullable();
+            $table->integer('duration')->nullable();
+            $table->string('description')->nullable();
             $table->foreignId('study_group_id');
             $table->timestamps();
             $table->softDeletes();

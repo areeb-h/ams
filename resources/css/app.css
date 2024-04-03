@@ -7,3 +7,7 @@
 [x-cloak] {
     display: none;
 }
+
+.button-submit {
+    @apply bg-amber-400
+}

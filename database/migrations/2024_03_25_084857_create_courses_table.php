@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('age_range');
+            $table->string('fee');
             $table->string('description');
+            $table->string('course_image_url')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -13,9 +13,9 @@ class Teacher extends Model
 
     protected $fillable = [
         'name',
-        'city',
-        'country',
-        'postal_code',
+        'position',
+        'mobile',
+        'address',
         'user_id',
     ];
 
