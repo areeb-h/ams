@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('dashboard')
+            ->path('admin')
             ->login()
             ->profile()
             ->brandLogo(asset('images/hac.png'))
