@@ -41,6 +41,7 @@ class User extends Authenticatable implements FilamentUser
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'email_verified_at',
     ];
 
     /**
@@ -60,7 +61,7 @@ class User extends Authenticatable implements FilamentUser
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            // 'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -73,7 +74,6 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
-        //return str_ends_with($this->email, '@hac.edu.mv') && $this->hasVerifiedEmail();
+        return str_ends_with($this->email, '@hac.edu.mv') && $this->hasVerifiedEmail();
     }
 }

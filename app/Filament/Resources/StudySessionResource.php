@@ -89,7 +89,7 @@ class StudySessionResource extends Resource
                     ->label('To')->alignCenter(),
 
                 TextColumn::make('attendanceSummary')
-                    ->label('Attendance')->alignCenter(),
+                    ->label('Attended')->alignCenter(),
 
             ])
             ->filters([

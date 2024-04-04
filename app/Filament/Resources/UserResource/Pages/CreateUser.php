@@ -13,17 +13,13 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
-//    protected function handleRecordCreation(array $data): Model
-//    {
-//        $verificationTime = now();
-//
-//        $user = User::create(Arr::except($data, ['role']));
-//
-//        $user->email_verified_at = now();
-//        $user->save();
-//
-//        $user->assignRole($data['role']);
-//
-//        return $user;
-//    }
+    protected function handleRecordCreation(array $data): Model
+    {
+        $user = User::create($data);
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        return $user;
+    }
 }

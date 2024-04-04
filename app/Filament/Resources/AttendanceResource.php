@@ -67,7 +67,7 @@ class AttendanceResource extends Resource
                     ->dateTime('d/m/y')->searchable()->sortable(),
 
                 TextColumn::make('attendanceSummary')
-                    ->label('Attendance')->alignCenter(),
+                    ->label('Attended')->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('study_session_id')
