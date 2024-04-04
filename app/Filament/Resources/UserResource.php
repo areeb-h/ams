@@ -49,6 +49,7 @@ class UserResource extends Resource
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
+                    ->required()
                     ->getSearchResultsUsing(fn (string $searchQuery) => Role::where('name', 'like', "%{$searchQuery}%")->pluck('name', 'id'))
                     ->getOptionLabelsUsing(fn (array $values): array => Role::whereIn('id', $values)->pluck('name', 'id')->toArray()),
             ]);
