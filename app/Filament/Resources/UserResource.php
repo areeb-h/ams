@@ -48,7 +48,8 @@ class UserResource extends Resource
                     ->required(fn ($livewire): bool => $livewire instanceof CreateUser)
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
                     //->visible(fn ($livewire): bool => $livewire instanceof CreateUser),
-                Toggle::make('status')->label('Active'),
+                Toggle::make('status')->label('Active')
+                    ->visible(fn ($livewire): bool => $livewire instanceof Pages\EditUser),
                 CheckboxList::make('roles')
                     ->relationship('roles', 'name')
                     ->required()
