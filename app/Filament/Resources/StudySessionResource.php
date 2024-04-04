@@ -42,6 +42,22 @@ class StudySessionResource extends Resource
                             $set('to_time', $studyGroup->to_time->format('H:i'));
                         }
                     }),
+                DatePicker::make('date')
+                    ->label('Date')
+                    ->required(),
+                DateTimePicker::make('from_time')
+                    ->prefix('Starts at')
+                    ->label('Time')
+                    ->withoutDate()
+                    ->withoutSeconds(),
+                DateTimePicker::make('to_time')
+                    ->prefix('Ends at .')
+                    ->label('Time')
+                    ->withoutDate()
+                    ->withoutSeconds()
+                    ->after('from_time'),
+                Textarea::make('description')
+                    ->label('Description'),
                 BelongsToManyMultiSelect::make('student_ids')
                     ->relationship('students', 'name')
                     ->options(function (callable $get) {
@@ -51,22 +67,6 @@ class StudySessionResource extends Resource
                     })
                     ->visible(fn ($get) => $get('study_group_id') && $get('id') !== null)
                     ->reactive(),
-                DatePicker::make('date')
-                    ->label('Date')
-                    ->required(),
-                DateTimePicker::make('from_time')
-                    ->prefix('Starts at')
-                    ->label('Time Period')
-                    ->withoutDate()
-                    ->withoutSeconds(),
-                DateTimePicker::make('to_time')
-                    ->prefix('Ends at .')
-                    ->label('')
-                    ->withoutDate()
-                    ->withoutSeconds()
-                    ->after('from_time'),
-                Textarea::make('description')
-                    ->label('Description'),
             ]);
     }
 
@@ -120,7 +120,7 @@ class StudySessionResource extends Resource
         return [
             'index' => Pages\ListStudySessions::route('/'),
             'create' => Pages\CreateStudySession::route('/create'),
-            'edit' => Pages\EditStudySession::route('/{record}/edit'),
+            //'edit' => Pages\EditStudySession::route('/{record}/edit'),
         ];
     }
 }

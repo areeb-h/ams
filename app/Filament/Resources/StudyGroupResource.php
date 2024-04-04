@@ -9,11 +9,13 @@ use App\Models\Day;
 use App\Models\Location;
 use App\Models\StudyGroup;
 use Carbon\Carbon;
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -33,15 +35,14 @@ class StudyGroupResource extends Resource
         return $form->schema([
             Forms\Components\BelongsToSelect::make('course')
                 ->relationship('course', 'name')->searchable()
-                ->reactive() // Make sure the field is reactive to update the form on change.
-                ->afterStateUpdated(function ($state, $set, $get) {
-                    $set('name', self::generateGroupName($get));
-                }),
+                ->reactive()
+                ->afterStateUpdated(self::updateGroupNameBasedOnState()),
 
             Forms\Components\TextInput::make('name')
                 ->placeholder('Name will be auto-generated on save')
-                ->label('Group Name'),
-                //->disabled(),
+                ->label('Group Name')->reactive()
+                ->disabled()
+                ->dehydrated(),
 
             Group::make([
                 Group::make([
@@ -52,9 +53,8 @@ class StudyGroupResource extends Resource
                         ->withoutSeconds()
                         ->required()
                         ->reactive()
-                        ->afterStateUpdated(function ($state, $set, $get) {
-                            $set('name', self::generateGroupName($get));
-                        }),
+                        ->afterStateUpdated(self::updateGroupNameBasedOnState()),
+
                     DateTimePicker::make('to_time')
                         ->prefix('Ends at .')
                         ->label('')
@@ -63,59 +63,79 @@ class StudyGroupResource extends Resource
                         ->required()
                         ->after('from_time')
                         ->reactive()
-                        ->afterStateUpdated(function ($state, $set, $get) {
-                            $set('name', self::generateGroupName($get));
-                        }),
-                    ])->columnSpan([
+                        ->afterStateUpdated(self::updateGroupNameBasedOnState()),
+
+                ])->columnSpan([
                     'sm' => 2,
                 ]),
             ]),
             Forms\Components\Textarea::make('description')
                 ->label('Description'),
+
             Forms\Components\BelongsToManyMultiSelect::make('students')
                 ->relationship('students', 'name'),
+
             Forms\Components\BelongsToManyMultiSelect::make('teachers')
                 ->relationship('teachers', 'name'),
             Forms\Components\BelongsToSelect::make('location')
-                ->relationship('location', 'address_line')->searchable()
-                ->afterStateUpdated(function ($state, $set, $get) {
-                    $set('name', self::generateGroupName($get));
-                }),
+                ->relationship('location', 'address_line')
+                ->afterStateUpdated(self::updateGroupNameBasedOnState()),
+
             Forms\Components\CheckboxList::make('days')
                 ->relationship('days', 'day')
                 ->reactive()
-                ->afterStateUpdated(function ($state, $set, $get) {
-                    $set('name', self::generateGroupName($get));
-                }),
-            ]);
+                ->afterStateUpdated(self::updateGroupNameBasedOnState()), // Use the reusable method here
+
+        ]);
     }
 
-    protected static function generateGroupName($get): string
+    protected static function updateGroupNameBasedOnState(): Closure
     {
-        // Fetch all necessary data to build group name
-        $courseName = $get('course') ? str_replace(' ', '_', Course::find($get('course'))->name) : 'NON';
-        $fromTime = $get('from_time') ? Carbon::parse($get('from_time'))->format('Hi') : '';
-        $toTime = $get('to_time') ? Carbon::parse($get('to_time'))->format('Hi') : '';
-        $days = $get('days') ? implode('_', Day::findMany($get('days'))->pluck('short')->toArray()) : '';
-        $location = $get('location') ? Location::find($get('location'))->code : 'hmp1';
+        return function ($state, $set, $get, $record) {
+            // Check if a state is set to prevent unnecessary operations
+            if (!$state) return;
 
-        // Combine data to generate name
-        $name = "{$courseName}_{$fromTime}_{$toTime}_{$days}_{$location}";
-
-        // Convert to a slug or any format you prefer
-        return strtoupper($name);
-
-        //return Str::slug($name);
+            $set('name', self::generateGroupName($get, $record));
+        };
     }
+
+
+    protected static function generateGroupName($get, $record): string
+    {
+
+
+
+
+        //dd($record->course->first()->id);
+
+        $course = Course::find($get('course'))?? $record->course->first();
+
+
+        $location = Location::find($get('location'));
+        $daysCollection = Day::findMany($get('days'));
+
+        $courseName = $course ? str_replace(' ', '_', $course?->name ?? '') : 'NON';
+        $fromTime = $get('from_time') ? Carbon::parse($get('from_time'))->format('Hi') : '';
+        // $toTime = $get('to_time') ? Carbon::parse($get('to_time'))->format('Hi') : '';
+        $days = $daysCollection->isNotEmpty() ? implode('_', $daysCollection->pluck('short')->toArray()) : '';
+        $locationCode = $location ? $location->code : 'hmp1';
+
+        $name = "{$courseName}_{$fromTime}_{$days}_{$locationCode}";
+
+        return strtoupper($name);
+    }
+
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Name'),
+//                Tables\Columns\TextColumn::make('name')
+//                    ->label('Name')->searchable(),
                 Tables\Columns\TextColumn::make('course.name')
-                    ->label('Course'),
+                    ->label('Course')->searchable(),
+                Tables\Columns\TextColumn::make('location.code')
+                    ->label('Location'),
 //                Tables\Columns\TextColumn::make('from_time')
 //                    ->date()
 //                    ->label('Date'),
@@ -125,12 +145,16 @@ class StudyGroupResource extends Resource
                 Tables\Columns\TextColumn::make('to_time')
                     ->dateTime('H:i')
                     ->label('To'),
-                Tables\Columns\TextColumn::make('duration')->label('Duration (min)'),
-                Tables\Columns\TextColumn::make('description')
-                    ->label('Description')->limit(50),
+                Tables\Columns\TextColumn::make('days.short'),
+                // Tables\Columns\TextColumn::make('duration')->label('Duration (min)'),
+//                Tables\Columns\TextColumn::make('description')
+//                    ->label('Description')->limit(50),
             ])
             ->filters([
-                //
+                SelectFilter::make('location')
+                    ->relationship('location', 'address_line', fn (Builder $query) => $query),
+                SelectFilter::make('day')
+                    ->relationship('days', 'day', fn (Builder $query) => $query),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -154,7 +178,7 @@ class StudyGroupResource extends Resource
         return [
             'index' => Pages\ListStudyGroups::route('/'),
             'create' => Pages\CreateStudyGroup::route('/create'),
-            'edit' => Pages\EditStudyGroup::route('/{record}/edit'),
+            //'edit' => Pages\EditStudyGroup::route('/{record}/edit'),
         ];
     }
 }

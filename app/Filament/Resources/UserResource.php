@@ -29,7 +29,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
@@ -52,7 +52,7 @@ class UserResource extends Resource
                     ->relationship('roles', 'name')
                     ->required(),
                 Toggle::make('status')->label('Active')
-                    ->visible(fn ($livewire): bool => $livewire instanceof Pages\EditUser),
+                    ->visible(fn ($livewire): bool => !$livewire instanceof Pages\CreateUser),
             ]);
     }
 
@@ -106,9 +106,10 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+//            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
+
 
 //    public static function canViewAny(): bool
 //    {

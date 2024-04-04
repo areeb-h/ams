@@ -41,8 +41,8 @@ class StudentResource extends Resource
                 Forms\Components\TextInput::make('address'),
                 Forms\Components\TextInput::make('mobile')->tel(),
                 Forms\Components\DateTimePicker::make('admission_date'),
-                Forms\Components\DatePicker::make('dob'),
-                Forms\Components\Toggle::make('status')->label('Active Status'),
+                Forms\Components\DatePicker::make('dob')->label('Date of birth'),
+                Forms\Components\Toggle::make('status')->label('Active status'),
                 Forms\Components\TextInput::make('sid')->required()->unique(ignoreRecord: true),
                 Forms\Components\BelongsToManyCheckboxList::make('courses')->relationship('courses', 'name'),
             ]);
@@ -150,7 +150,7 @@ class StudentResource extends Resource
         return [
             'index' => Pages\ListStudents::route('/'),
             'create' => Pages\CreateStudent::route('/create'),
-            'edit' => Pages\EditStudent::route('/{record}/edit'),
+            //'edit' => Pages\EditStudent::route('/{record}/edit'),
         ];
     }
 

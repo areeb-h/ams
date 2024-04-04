@@ -6,12 +6,14 @@ use App\Filament\Resources\TeacherResource\Pages;
 use App\Filament\Resources\TeacherResource\RelationManagers;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Models\Teacher;
+use Filament\Actions\CreateAction;
 use Filament\Forms;
 use Filament\Forms\Components\BelongsToManyMultiSelect;
 use Filament\Forms\Components\BelongsToSelect;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -23,7 +25,7 @@ class TeacherResource extends Resource
 {
     protected static ?string $model = Teacher::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
@@ -44,8 +46,8 @@ class TeacherResource extends Resource
                 TextInput::make('name')
                     ->label('Name')
                     ->disabled()
-                        ->reactive()
-                    ->dehydrated(false),
+                    ->reactive()
+                    ->dehydrated(true),
                 TextInput::make('mobile')
                     ->tel()
                     ->label('Mobile'),
@@ -98,7 +100,7 @@ class TeacherResource extends Resource
         return [
             'index' => Pages\ListTeachers::route('/'),
             'create' => Pages\CreateTeacher::route('/create'),
-            'edit' => Pages\EditTeacher::route('/{record}/edit'),
+//            'edit' => Pages\EditTeacher::route('/{record}/edit'),
         ];
     }
 }

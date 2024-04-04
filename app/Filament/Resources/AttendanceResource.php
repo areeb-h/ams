@@ -101,6 +101,12 @@ class AttendanceResource extends Resource
         ];
     }
 
+    public static function canCreate(): bool
+    {
+        // Return false to disable the creation of new records
+        return false;
+    }
+
     public static function getPages(): array
     {
         return [

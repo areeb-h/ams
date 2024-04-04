@@ -41,7 +41,7 @@ class CourseResource extends Resource
             Group::make([
                 Forms\Components\BelongsToSelect::make('course_type')
                     ->relationship('courseType', 'name')->required(),
-                Textarea::make('description'),
+                Textarea::make('description')->required(),
             ]),
 
             Forms\Components\BelongsToManyMultiSelect::make('teachers')
@@ -97,7 +97,7 @@ class CourseResource extends Resource
         return [
             'index' => Pages\ListCourses::route('/'),
             'create' => Pages\CreateCourse::route('/create'),
-            'edit' => Pages\EditCourse::route('/{record}/edit'),
+            //'edit' => Pages\EditCourse::route('/{record}/edit'),
         ];
     }
 

@@ -16,4 +16,11 @@ class ListStudyGroups extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function recordExists(string $groupName): bool
+    {
+        // Checks if a StudyGroup record exists with the specified name
+        return true;
+    }
+
 }

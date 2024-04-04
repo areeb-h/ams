@@ -26,7 +26,7 @@ class CourseTypeResource extends Resource
             ->schema([
                 TextInput::make('name')->required()->columnSpan(2),
                 TextInput::make('description')->columnSpan(1),
-                TextInput::make('course_type_image_url')->required()->columnSpan(1),
+                TextInput::make('course_type_image_url')->columnSpan(1),
             ]);
     }
 
@@ -66,7 +66,7 @@ class CourseTypeResource extends Resource
         return [
             'index' => Pages\ListCourseTypes::route('/'),
             'create' => Pages\CreateCourseType::route('/create'),
-            'edit' => Pages\EditCourseType::route('/{record}/edit'),
+            //'edit' => Pages\EditCourseType::route('/{record}/edit'),
         ];
     }
 }
