@@ -46,8 +46,8 @@ class UserResource extends Resource
                 TextInput::make('password')
                     ->password()
                     ->required(fn ($livewire): bool => $livewire instanceof CreateUser)
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                    ->visible(fn ($livewire): bool => $livewire instanceof CreateUser),
+                    ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
+                    //->visible(fn ($livewire): bool => $livewire instanceof CreateUser),
                 Toggle::make('status')->label('Active'),
                 CheckboxList::make('roles')
                     ->relationship('roles', 'name')
