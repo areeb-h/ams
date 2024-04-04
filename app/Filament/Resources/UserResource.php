@@ -7,8 +7,11 @@ use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -45,13 +48,10 @@ class UserResource extends Resource
                     ->required(fn ($livewire): bool => $livewire instanceof CreateUser)
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->visible(fn ($livewire): bool => $livewire instanceof CreateUser),
-                Select::make('role')
+                Toggle::make('status')->label('Active'),
+                CheckboxList::make('roles')
                     ->relationship('roles', 'name')
-                    ->multiple()
-                    ->preload()
                     ->required()
-                    ->getSearchResultsUsing(fn (string $searchQuery) => Role::where('name', 'like', "%{$searchQuery}%")->pluck('name', 'id'))
-                    ->getOptionLabelsUsing(fn (array $values): array => Role::whereIn('id', $values)->pluck('name', 'id')->toArray()),
             ]);
     }
 
@@ -62,6 +62,14 @@ class UserResource extends Resource
                 TextColumn::make('name'),
                 TextColumn::make('email'),
                 TextColumn::make('roles.name')->label('Roles'),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        '1' => 'success',
+                        '0' => 'danger',
+                    })->formatStateUsing(function ($state) {
+                        return $state == '1' ? 'Active' : 'Inactive';
+                    }),
             ])
             ->filters([
                 //
