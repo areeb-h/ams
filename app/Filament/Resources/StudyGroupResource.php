@@ -103,13 +103,7 @@ class StudyGroupResource extends Resource
     protected static function generateGroupName($get, $record): string
     {
 
-
-
-
-        //dd($record->course->first()->id);
-
-        $course = Course::find($get('course'))?? $record->course->first();
-
+        $course = Course::find($get('course'))->first()?? $record->course->first();
 
         $location = Location::find($get('location'));
         $daysCollection = Day::findMany($get('days'));
