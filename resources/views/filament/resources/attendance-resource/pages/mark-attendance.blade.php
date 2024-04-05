@@ -4,7 +4,7 @@
         <h2 class="text-sm font-bold">
             {{ $studySession->date->format('D') }} {{ $studySession->date->format('d/m/y') }}
             {{ $studySession->from_time->format('H:i') }}-{{ $studySession->to_time->format('H:i') }}
-            {{ $studySession->studyGroup->location->code }}
+            {{ $studySession->studyGroup->location->code?? 'Center' }}
         </h2>
 
     </div>

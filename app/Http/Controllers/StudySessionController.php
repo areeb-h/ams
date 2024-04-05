@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StudySessionStoreRequest;
 use App\Http\Requests\StudySessionUpdateRequest;
+use App\Models\StudyGroup;
 use App\Models\StudySession;
+use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,6 +41,13 @@ class StudySessionController extends Controller
 //        }
 //    }
 
+    public function fetchStudents(StudyGroup $studyGroup): \Illuminate\Http\JsonResponse
+    {
+        $students = $studyGroup->students;
+
+        return response()->json($students);
+    }
+
     public function saveAttendance(Request $request, StudySession $record): RedirectResponse
     {
         try {
@@ -69,10 +78,50 @@ class StudySessionController extends Controller
         }
     }
 
-    public function saveNewAttendance(Request $request, StudySession $session): RedirectResponse
+    public function saveNewAttendance(Request $request): RedirectResponse
     {
-            // Handle error, maybe log it and return with error message
-            return redirect()->back()->with('error', 'Failed to update attendance.');
+        try {
+            $selectedGroupId = $request->input('study_group');
+
+            $group = StudyGroup::findOrFail($selectedGroupId);
+
+            $session = StudySession::create([
+                'study_group_id' => $selectedGroupId,
+                'date' => Carbon::now(),
+                'from_time' => Carbon::now(),
+                'to_time' => Carbon::now(),
+            ]);
+
+            $session->studyGroup()->associate($group);
+            $session->teachers()->attach(auth()->user());
+            $session->save();
+
+            $studentIds = $request->input('students', []);
+
+            $attendanceData = [];
+            foreach ($studentIds as $studentId) {
+                $attendanceData[$studentId] = ['status' => 'absent', 'attended' => false];
+            }
+            $session->students()->attach($attendanceData);
+
+            Notification::make()
+                ->title('Success')
+                ->body('New attendance sheet created successfully.')
+                ->success()
+                ->send();
+
+            return redirect()->route('filament.admin.resources.attendances.mark-attendance', ['record' => $session->id]);
+            // return redirect()->route('filament.resources.study-sessions.index');
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Success')
+                ->body('Failed to create new attendance sheet.')
+                ->danger()
+                ->success()
+                ->send();
+
+            return redirect()->back();
+        }
     }
 
     public function create(Request $request): View

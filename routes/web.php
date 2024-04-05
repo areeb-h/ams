@@ -11,7 +11,12 @@ Route::redirect('/', '/dashboard');
 //    Route::get('about', [WebsiteController::class, 'about'])->name('about');
 //});
 
-Route::prefix('/dashboard/attendances/{record}/')->name('filament.admin.resources.attendances.')->group(function () {
-    Route::post('mark-attendance', [StudySessionController::class, 'saveAttendance'])->name('mark-attendance.save');
+Route::prefix('/dashboard/attendances/')->name('filament.admin.resources.attendances.')->group(function () {
+    Route::post('{record}/mark-attendance', [StudySessionController::class, 'saveAttendance'])->name('mark-attendance.save');
     Route::post('create-attendance', [StudySessionController::class, 'saveNewAttendance'])->name('create-attendance.save');
 });
+
+
+//Route::get('/dashboard/study-groups/fetch-students', [StudySessionController::class, 'fetchStudents'])->name('fetch.students');
+Route::get('/dashboard/study-groups/{studyGroup}/fetch-students', [StudySessionController::class, 'fetchStudents'])->name('fetch.students');
+
