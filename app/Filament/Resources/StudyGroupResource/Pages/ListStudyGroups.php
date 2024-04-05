@@ -17,10 +17,16 @@ class ListStudyGroups extends ListRecords
         ];
     }
 
-    public function recordExists(string $groupName): bool
+    public function getTitle(): string
     {
-        // Checks if a StudyGroup record exists with the specified name
-        return true;
+        return 'Classes';
     }
 
+    public function getBreadcrumbs(): array
+    {
+        return [
+            url()->route('filament.admin.pages.dashboard') => 'Dashboard',
+            url()->route('filament.admin.resources.study-groups.index') => 'Classes',
+        ];
+    }
 }

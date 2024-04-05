@@ -24,6 +24,8 @@ class StudySessionResource extends Resource
 {
     protected static ?string $model = StudySession::class;
 
+    protected static ?string $navigationLabel = 'Sessions';
+
     protected static ?string $navigationGroup = 'Manage Centre';
 
     public static function form(Form $form): Form

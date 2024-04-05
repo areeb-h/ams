@@ -26,9 +26,9 @@ class StudyGroupResource extends Resource
 {
     protected static ?string $model = StudyGroup::class;
 
-    protected static ?string $navigationGroup = 'Manage Centre';
+    protected static ?string $navigationLabel = 'Classes';
 
-    //protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Manage Centre';
 
     public static function form(Form $form): Form
     {

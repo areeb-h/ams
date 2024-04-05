@@ -16,4 +16,17 @@ class ListStudySessions extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function getTitle(): string
+    {
+        return 'Sessions';
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            url()->route('filament.admin.pages.dashboard') => 'Dashboard',
+            url()->route('filament.admin.resources.study-sessions.index') => 'Sessions',
+        ];
+    }
 }

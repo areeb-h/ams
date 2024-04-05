@@ -16,4 +16,18 @@ class ListAttendances extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function getTitle(): string
+    {
+        return 'Attendance';
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            url()->route('filament.admin.pages.dashboard') => 'Dashboard',
+            url()->route('filament.admin.resources.attendances.index') => 'Attendance',
+        ];
+    }
+
 }

@@ -31,30 +31,9 @@ class AttendanceResource extends Resource
 {
     protected static ?string $model = StudySession::class;
 
-    protected static ?string $navigationLabel = 'Attendance Sheet';
-
-    protected static ?string $title = 'Attendance Sheet';
+    protected static ?string $navigationLabel = 'Attendance';
 
     protected static ?string $navigationGroup = 'Manage Centre';
-
-
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Repeater::make('attendances')
-                    ->relationship('attendances')
-                    ->schema([
-                        Forms\Components\TextInput::make('student.name')
-                            ->label('Student Name')
-                            ->disabled(true),
-                        Forms\Components\Checkbox::make('attended')
-                            ->label('Attended')
-                    ])
-                    ->columns(2),
-            ]);
-
-    }
 
     public static function table(Table $table): Table
     {
@@ -77,20 +56,20 @@ class AttendanceResource extends Resource
 
             ])
             ->actions([
-                Tables\Actions\Action::make('markAttendance')
-                    ->url(fn ($record) => route('filament.admin.resources.attendances.mark-attendance', ['session' => $record->id]))
-                    ->icon('heroicon-o-pencil'),
+                Tables\Actions\EditAction::make()
+                    ->url(fn ($record) => route('filament.admin.resources.attendances.mark-attendance', ['record' => $record->id]))
+                    ->icon('heroicon-o-pencil')->label('Mark'),
             ])
             ->bulkActions([
-                BulkAction::make('toggle_attended')
-                    ->label('Toggle Attended Status')
-                    ->action(function ($records, $data): void {
-                        foreach ($records as $record) {
-                            $record->attended = !$record->attended;
-                            $record->save();
-                        }
-                    })
-                    ->deselectRecordsAfterCompletion()
+//                BulkAction::make('toggle_attended')
+//                    ->label('Toggle Attended Status')
+//                    ->action(function ($records, $data): void {
+//                        foreach ($records as $record) {
+//                            $record->attended = !$record->attended;
+//                            $record->save();
+//                        }
+//                    })
+//                    ->deselectRecordsAfterCompletion()
             ]);
     }
 
@@ -103,15 +82,16 @@ class AttendanceResource extends Resource
 
     public static function canCreate(): bool
     {
-        // Return false to disable the creation of new records
-        return false;
+        return true;
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListAttendances::route('/'),
-           // 'edit' => Pages\EditAttendance::route('/{record}/edit'),
+            'create' => Pages\CreateAttendance::route('/create'),
+            'mark-attendance' => Pages\MarkAttendance::route('/{record}/mark-attendance'),
+            // 'edit' => Pages\EditAttendance::route('/{record}/edit'),
         ];
     }
 }

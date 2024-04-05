@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StudySessionStoreRequest;
 use App\Http\Requests\StudySessionUpdateRequest;
 use App\Models\StudySession;
+use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use MongoDB\Driver\Session;
 
 class StudySessionController extends Controller
 {
@@ -37,28 +39,40 @@ class StudySessionController extends Controller
 //        }
 //    }
 
-    public function saveAttendance(Request $request, $sessionId): RedirectResponse
+    public function saveAttendance(Request $request, StudySession $record): RedirectResponse
     {
         try {
-            $studySession = StudySession::findOrFail($sessionId);
-            $attendanceStatus = $request->input('attendance'); // Expected to receive a single attendance status for all students
+            $attendanceStatuses = $request->input('attendance', []);
+            $lateStatuses = $request->input('late', []);
 
-            foreach ($studySession->students as $student) {
-                // Check if the student ID exists in the attendance data
-                if (isset($attendanceStatus[$student->id])) {
-                    // Update the attendance status for the student
-                    $attended = $attendanceStatus[$student->id] === '1';
-                    $studySession->students()->updateExistingPivot($student->id, ['attended' => $attended]);
+            foreach ($record->students as $student) {
+                if (isset($lateStatuses[$student->id]) && $lateStatuses[$student->id] == '1') {
+                    $status = 'late';
+                } elseif (isset($attendanceStatuses[$student->id]) && $attendanceStatuses[$student->id] == '1') {
+                    $status = 'attended';
                 } else {
-                    // If the student ID is not in the attendance data, mark them as absent
-                    $studySession->students()->updateExistingPivot($student->id, ['attended' => false]);
+                    $status = 'absent';
                 }
+
+                $record->students()->updateExistingPivot($student->id, ['status' => $status, 'attended' => $status !== 'absent']);
             }
+
+            Notification::make()
+                ->title('Success')
+                ->body('Attendance updated successfully.')
+                ->success()
+                ->send();
+
             return redirect()->route('filament.resources.study-sessions.index')->with('success', 'Attendance updated successfully.');
         } catch (\Exception $e) {
-            // Handle error, maybe log it and return with error message
             return redirect()->back()->with('error', 'Failed to update attendance.');
         }
+    }
+
+    public function saveNewAttendance(Request $request, StudySession $session): RedirectResponse
+    {
+            // Handle error, maybe log it and return with error message
+            return redirect()->back()->with('error', 'Failed to update attendance.');
     }
 
     public function create(Request $request): View

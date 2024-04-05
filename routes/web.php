@@ -1,12 +1,8 @@
 <?php
 
-use App\Filament\Resources\StudySessionResource\Pages\MarkAttendance;
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\StudentController;
+use App\Filament\Resources\AttendanceResource\Pages\CreateAttendance;
+use App\Filament\Resources\AttendanceResource\Pages\MarkAttendance;
 use App\Http\Controllers\StudySessionController;
-use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\Website\WebsiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,12 +34,11 @@ Route::prefix('/')->name('website.')->group(function () {
     Route::get('about', [WebsiteController::class, 'about'])->name('about');
 });
 
+Route::post('/dashboard/attendances/{record}/mark-attendance', [StudySessionController::class, 'saveAttendance'])
+    ->name('filament.admin.resources.attendances.mark-attendance.save');
 
-Route::get('/dashboard/attendances/{session}/mark-attendance', MarkAttendance::class)
-    ->name('filament.admin.resources.attendances.mark-attendance');
-
-Route::post('/dashboard/attendances/{session}/save-attendance', [StudySessionController::class, 'saveAttendance'])
-    ->name('filament.admin.resources.attendances.save-attendance');
+Route::post('/dashboard/attendances/{session}/save-new-attendance', [StudySessionController::class, 'saveNewAttendance'])
+    ->name('filament.admin.resources.attendances.save-new-attendance');
 
 
 
