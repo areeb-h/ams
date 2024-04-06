@@ -6,6 +6,7 @@ use App\Filament\Resources\CourseResource\Pages;
 use App\Filament\Resources\CourseResource\RelationManagers;
 use App\Models\Course;
 use App\Models\StudyGroup;
+use App\Traits\AdminAuthorization;
 use Filament\Forms;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Textarea;
@@ -21,17 +22,18 @@ use Illuminate\Support\Facades\Auth;
 
 class CourseResource extends Resource
 {
+    use AdminAuthorization;
+
     protected static ?string $model = Course::class;
 
     protected static ?string $navigationGroup = 'Website';
-
-    //protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form->schema([
             Group::make([
                 TextInput::make('name')->required()->columnSpan(2),
+                TextInput::make('code')->required()->unique(ignoreRecord: true),
                 TextInput::make('age_range')->required()->columnSpan(1),
                 TextInput::make('fee')->required()->columnSpan(1),
             ])->columns([
@@ -64,14 +66,15 @@ class CourseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->sortable(),
+                Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('code')->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('students_count')
                     ->label('Students')
                     ->sortable()
                     ->counts('students'),
                 Tables\Columns\TextColumn::make('fee')->sortable(),
                 Tables\Columns\TextColumn::make('age_range')->sortable(),
-                Tables\Columns\TextColumn::make('courseType.name')->sortable(),
+                Tables\Columns\TextColumn::make('courseType.name')->sortable()->searchable(),
             ])->filters([
                 // Define any filters here
             ])
@@ -79,9 +82,10 @@ class CourseResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                //Tables\Actions\DeleteBulkAction::make()->authorize(self::isAdmin()),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ])->authorize(self::isAdmin())->label('Actions'),
             ]);
     }
 
@@ -99,20 +103,5 @@ class CourseResource extends Resource
             'create' => Pages\CreateCourse::route('/create'),
             //'edit' => Pages\EditCourse::route('/{record}/edit'),
         ];
-    }
-
-    public static function canCreate(): bool
-    {
-        return Auth::user()->hasRole('admin');
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return Auth::user()->hasRole('admin');
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return Auth::user()->hasRole('admin');
     }
 }

@@ -49,4 +49,21 @@ class Student extends Model
         return $this->belongsToMany(StudySession::class, 'attendances')
             ->withPivot('attended');
     }
+
+    public function getAttendanceAttribute(): string
+    {
+        $attended = $this->studySessions()->where('attended', 1)->count();
+        $totalClasses = $this->studySessions()->count();
+
+        if ($totalClasses === 0) {
+            return 'N/A';
+        }
+
+        $attendancePercentage = ($attended / $totalClasses) * 100;
+
+        $attendancePercentageFormatted = number_format($attendancePercentage, 1) . '%';
+
+        return "$attended/$totalClasses | $attendancePercentageFormatted";
+    }
+
 }

@@ -103,4 +103,9 @@ class TeacherResource extends Resource
 //            'edit' => Pages\EditTeacher::route('/{record}/edit'),
         ];
     }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->hasRole('admin');
+    }
 }

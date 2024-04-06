@@ -50,6 +50,7 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            //->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Website')

@@ -77,14 +77,15 @@ class StudyGroupResource extends Resource
 
             Forms\Components\BelongsToManyMultiSelect::make('teachers')
                 ->relationship('teachers', 'name'),
+
             Forms\Components\BelongsToSelect::make('location')
-                ->relationship('location', 'address_line')
-                ->afterStateUpdated(self::updateGroupNameBasedOnState()),
+                ->relationship('location', 'address_line')->reactive()
+                ->afterStateUpdated(self::updateGroupNameBasedOnState())->required(),
 
             Forms\Components\CheckboxList::make('days')
                 ->relationship('days', 'day')
-                ->reactive()
-                ->afterStateUpdated(self::updateGroupNameBasedOnState()), // Use the reusable method here
+                ->reactive()->required()
+                ->afterStateUpdated(self::updateGroupNameBasedOnState()),
 
         ]);
     }
@@ -99,25 +100,23 @@ class StudyGroupResource extends Resource
         };
     }
 
-
     protected static function generateGroupName($get, $record): string
     {
 
-        $course = Course::find($get('course'))->first()?? $record->course->first();
-
-        $location = Location::find($get('location'));
+        $course_code = Course::find($get('course'))->code; //$record->course->first();
+        $location_code = Location::find($get('location'))->code;
         $daysCollection = Day::findMany($get('days'));
 
-        $courseName = $course ? str_replace(' ', '_', $course?->name ?? '') : 'NON';
         $fromTime = $get('from_time') ? Carbon::parse($get('from_time'))->format('Hi') : '';
-        // $toTime = $get('to_time') ? Carbon::parse($get('to_time'))->format('Hi') : '';
-        $days = $daysCollection->isNotEmpty() ? implode('_', $daysCollection->pluck('short')->toArray()) : '';
-        $locationCode = $location ? $location->code : 'hmp1';
 
-        $name = "{$courseName}_{$fromTime}_{$days}_{$locationCode}";
+        $days = $daysCollection->isNotEmpty() ? implode('_', $daysCollection->pluck('short')->toArray()) : '';
+
+        $name = "{$course_code}_{$fromTime}_{$days}_{$location_code}";
 
         return strtoupper($name);
     }
+
+
 
 
     public static function table(Table $table): Table

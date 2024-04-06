@@ -17,7 +17,7 @@
         @csrf
         <div @class('flex flex-col divide-y justify-center border rounded-xl //bg-white /dark:bg-slate-900')>
             @foreach($studySession->students as $student)
-                <div @class('flex justify-between items-center divider-1 bg-green-600 py-4 px-4')>
+                <div @class('flex gap-2 justify-between items-center divider-1 bg-green-600 py-4 px-4')>
                     <div @class('flex items-center gap-2')>
                         <x-filament::badge :color="\Filament\Support\Colors\Color::Gray">
                             {{ $loop->iteration }}

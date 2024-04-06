@@ -5,17 +5,17 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CourseTypeResource\Pages;
 use App\Filament\Resources\CourseTypeResource\RelationManagers;
 use App\Models\CourseType;
-use Filament\Forms;
+use App\Traits\AdminAuthorization;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CourseTypeResource extends Resource
 {
+    use AdminAuthorization;
+
     protected static ?string $model = CourseType::class;
 
     protected static ?string $navigationGroup = 'Website';
@@ -48,9 +48,9 @@ class CourseTypeResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+//                Tables\Actions\BulkActionGroup::make([
+//                    Tables\Actions\DeleteBulkAction::make(),
+//                ]),
             ]);
     }
 

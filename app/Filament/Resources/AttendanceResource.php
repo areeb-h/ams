@@ -26,10 +26,14 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class AttendanceResource extends Resource
 {
     protected static ?string $model = StudySession::class;
+
+    protected static ?string $modelLabel = 'Attendance';
 
     protected static ?string $navigationLabel = 'Attendance';
 
@@ -41,19 +45,50 @@ class AttendanceResource extends Resource
             ->columns([
                 TextColumn::make('studyGroup.name')->label('Study Group')->searchable(),
 
-                TextColumn::make('date')->dateTime()
-                    ->label('Date')
-                    ->dateTime('d/m/y')->searchable()->sortable(),
+                TextColumn::make('date')->date()->sortable(),
 
                 TextColumn::make('attendanceSummary')
                     ->label('Attended')->alignCenter(),
             ])
             ->filters([
-                SelectFilter::make('study_session_id')
-                    ->label('Study Session')
-                    ->searchable()
-                    ->relationship('studySession', 'date', fn (Builder $query) => $query),
+                SelectFilter::make('studyGroup')->searchable()->label('Class')
+                    ->relationship('studyGroup', 'name'),
+                DateRangeFilter::make('date')
+                    ->label('Date range')
+                    ->timezone('UTC')
+                    ->firstDayOfWeek(1)
+                    ->alwaysShowCalendar()
+                    ->setTimePickerOption()
+                    ->setTimePickerIncrementOption(2)
+                    ->setAutoApplyOption()
+                    ->setLinkedCalendarsOption()
+                    ->disabledDates(['array of Dates'])
+                    ->minDate(\Carbon\Carbon::now()->subMonth())
+                    ->maxDate(\Carbon\Carbon::now()->addMonth())
+                    ->displayFormat('YYYY-MM-DD')
+                    ->withIndicator()
+                    ->ranges([
+                        'Today' => [now()->startOfDay(), now()->endOfDay()],
+                        'Yesterday' => [now()->subDay()->startOfDay(), now()->subDay()->endOfDay()],
+                        'This Month [' . now()->format('F') . ']' => [now()->startOfMonth(), now()->endOfMonth()],
+                        'This Year [' . now()->format('Y') . ']' => [now()->startOfYear(), now()->endOfYear()],
+                        'Last Year [' . now()->subYear()->format('Y') . ']' => [now()->subYear()->startOfYear(), now()->endOfYear()],
+                    ])
+                    ->useRangeLabels()
+                    ->disableCustomRange()
+                    ->separator(' to ')
+                    ->query(function (Builder $query, array $data): Builder {
 
+                        $attDate = $data['date'] ?? null;
+
+                        [$startDate, $endDate] = array_pad(explode(' to ', $attDate ?? '', 2), 2, null);
+
+                        if ($startDate && $endDate) {
+                            return $query->whereBetween('date', [$startDate, $endDate]);
+                        }
+
+                        return $query;
+                    })->withIndicator(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

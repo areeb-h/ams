@@ -6,6 +6,7 @@ use App\Filament\Resources\StudySessionResource\Pages;
 use App\Filament\Resources\StudySessionResource\RelationManagers;
 use App\Models\StudyGroup;
 use App\Models\StudySession;
+use App\Traits\AdminAuthorization;
 use Filament\Forms;
 use Filament\Forms\Components\BelongsToManyMultiSelect;
 use Filament\Forms\Components\DatePicker;
@@ -16,12 +17,16 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class StudySessionResource extends Resource
 {
+    use AdminAuthorization;
+
     protected static ?string $model = StudySession::class;
 
     protected static ?string $navigationLabel = 'Sessions';
@@ -76,11 +81,9 @@ class StudySessionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('studyGroup.name')->label('Study Group')->copyable(),
+                TextColumn::make('studyGroup.name')->label('Study Group')->searchable(),
 
-                TextColumn::make('date')->dateTime()
-                    ->label('Date')
-                ->dateTime('d/m/y'),
+                TextColumn::make('date')->date()->sortable(),
 
                 TextColumn::make('from_time')
                     ->dateTime('H:i')
@@ -95,7 +98,44 @@ class StudySessionResource extends Resource
 
             ])
             ->filters([
-                //
+                SelectFilter::make('studyGroup')->searchable()->label('Class')
+                    ->relationship('studyGroup', 'name'),
+                DateRangeFilter::make('date')
+                    ->label('Date range')
+                    ->timezone('UTC')
+                    ->firstDayOfWeek(1)
+                    ->alwaysShowCalendar()
+                    ->setTimePickerOption()
+                    ->setTimePickerIncrementOption(2)
+                    ->setAutoApplyOption()
+                    ->setLinkedCalendarsOption()
+                    ->disabledDates(['array of Dates'])
+                    ->minDate(\Carbon\Carbon::now()->subMonth())
+                    ->maxDate(\Carbon\Carbon::now()->addMonth())
+                    ->displayFormat('YYYY-MM-DD')
+                    ->withIndicator()
+                    ->ranges([
+                        'Today' => [now()->startOfDay(), now()->endOfDay()],
+                        'Yesterday' => [now()->subDay()->startOfDay(), now()->subDay()->endOfDay()],
+                        'This Month [' . now()->format('F') . ']' => [now()->startOfMonth(), now()->endOfMonth()],
+                        'This Year [' . now()->format('Y') . ']' => [now()->startOfYear(), now()->endOfYear()],
+                        'Last Year [' . now()->subYear()->format('Y') . ']' => [now()->subYear()->startOfYear(), now()->endOfYear()],
+                    ])
+                    ->useRangeLabels()
+                    ->disableCustomRange()
+                    ->separator(' to ')
+                    ->query(function (Builder $query, array $data): Builder {
+
+                        $admissionDate = $data['date'] ?? null;
+
+                        [$startDate, $endDate] = array_pad(explode(' to ', $admissionDate ?? '', 2), 2, null);
+
+                        if ($startDate && $endDate) {
+                            return $query->whereBetween('date', [$startDate, $endDate]);
+                        }
+
+                        return $query;
+                    })->withIndicator(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -106,7 +146,7 @@ class StudySessionResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ])->authorize(self::isAdmin()),
             ]);
     }
 

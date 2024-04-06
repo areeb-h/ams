@@ -41,13 +41,6 @@ class StudySessionController extends Controller
 //        }
 //    }
 
-    public function fetchStudents(StudyGroup $studyGroup): \Illuminate\Http\JsonResponse
-    {
-        $students = $studyGroup->students;
-
-        return response()->json($students);
-    }
-
     public function saveAttendance(Request $request, StudySession $record): RedirectResponse
     {
         try {
@@ -88,8 +81,8 @@ class StudySessionController extends Controller
             $session = StudySession::create([
                 'study_group_id' => $selectedGroupId,
                 'date' => Carbon::now(),
-                'from_time' => Carbon::now(),
-                'to_time' => Carbon::now(),
+                'from_time' => $group->from_time,
+                'to_time' => $group->to_time,
             ]);
 
             $session->studyGroup()->associate($group);
@@ -111,13 +104,11 @@ class StudySessionController extends Controller
                 ->send();
 
             return redirect()->route('filament.admin.resources.attendances.mark-attendance', ['record' => $session->id]);
-            // return redirect()->route('filament.resources.study-sessions.index');
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Success')
+                ->title('Failed')
                 ->body('Failed to create new attendance sheet.')
                 ->danger()
-                ->success()
                 ->send();
 
             return redirect()->back();

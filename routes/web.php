@@ -18,5 +18,4 @@ Route::prefix('/dashboard/attendances/')->name('filament.admin.resources.attenda
 
 
 //Route::get('/dashboard/study-groups/fetch-students', [StudySessionController::class, 'fetchStudents'])->name('fetch.students');
-Route::get('/dashboard/study-groups/{studyGroup}/fetch-students', [StudySessionController::class, 'fetchStudents'])->name('fetch.students');
 

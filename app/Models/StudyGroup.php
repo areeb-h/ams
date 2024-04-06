@@ -60,7 +60,7 @@ class StudyGroup extends Model
 
     public function location(): belongsTo
     {
-        return $this->belongsTo(Location::class);
+        return $this->belongsTo(Location::class, 'location_id', 'id');
     }
 
     protected static function booted(): void

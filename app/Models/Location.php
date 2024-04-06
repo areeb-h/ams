@@ -21,6 +21,11 @@ class Location extends Model
 
     public function studyGroups(): HasMany
     {
-        return $this->hasMany(StudyGroup::class);
+        return $this->hasMany(StudyGroup::class, 'location_id', 'id');
+    }
+
+    public function getClassCountAttribute(): int
+    {
+        return $this->studyGroups()->count();
     }
 }

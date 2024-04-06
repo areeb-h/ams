@@ -18,8 +18,8 @@ class CreateAttendance extends CreateRecord
 
     public object $classes;
 
-    //public ?string $selectedClassId = null;
-    public $students = [];
+    public ?string $studyGroupId;
+    public ?object $students;
 
     public function mount(): void
     {
@@ -35,29 +35,45 @@ class CreateAttendance extends CreateRecord
             $this->classes = collect(StudyGroup::all());
         }
 
-        $this->students = collect(); // Ensure this is a collection
+        $this->students = collect();
+
+//        $this->students = collect();
+//        $this->studyGroupId = '1';
 
     }
 
-//    public function setStudents(StudyGroup $value): void
-//    {
-//        $this->students = $value?->students()->get() ?? collect();
-//    }
-
-    public function updatedSelectedClassId($value)
+    public function fetchStudents($studyGroupId): void
     {
-        // Fetch the students associated with the selected class
-        $selectedClass = StudyGroup::find($value);
-        if ($selectedClass) {
-            $this->students = $selectedClass->students ?? collect();
-        } else {
-            $this->students = collect(); // Reset students if no class is selected
+        //return $studyGroupId === 'nothing'?  true: false;
+
+//        $studyGroup = StudyGroup::findOrFail($studyGroupId)?? '';
+//
+//        $this->students = $studyGroup->students;
+
+        if (!empty($studyGroupId)) {
+            try {
+                $studyGroup = StudyGroup::findOrFail($studyGroupId);
+                $this->students = $studyGroup->students;
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                $this->students = null;
+            }
         }
+        $this->studyGroupId = $studyGroupId;
     }
 
     public function getTitle(): string
     {
         return 'New Attendance Sheet';
+    }
+
+    public function getBuss(): string
+    {
+        return 'New Attendance ';
+    }
+
+    public static function createButtonLabel(): string
+    {
+        return 'YourButtonTextHere';
     }
 
     public function getBreadcrumbs(): array

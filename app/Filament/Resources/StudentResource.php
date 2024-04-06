@@ -7,6 +7,7 @@ use App\Filament\Resources\StudentResource\Pages;
 use App\Filament\Resources\StudentResource\Widgets\StudentOverview;
 use App\Models\Course;
 use App\Models\Student;
+use App\Traits\AdminAuthorization;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -27,6 +28,7 @@ use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class StudentResource extends Resource
 {
+    use AdminAuthorization;
     protected static ?string $model = Student::class;
 
     protected static ?string $navigationGroup = 'Manage Centre';
@@ -50,31 +52,33 @@ class StudentResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $isAdmin = auth()->user()->hasRole('admin');
+
+        $columns = [
+            Tables\Columns\TextColumn::make('sid')->searchable()->sortable()->label('SID')->visible($isAdmin),
+            Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+            Tables\Columns\TextColumn::make('mobile')->searchable()->sortable()->copyable(),
+            Tables\Columns\TextColumn::make('admission_date')->date()->searchable()->sortable()->visible($isAdmin),
+            Tables\Columns\TextColumn::make('address')->searchable()->sortable(),
+            Tables\Columns\TextColumn::make('attendance'),
+            Tables\Columns\TextColumn::make('status')->visible($isAdmin)
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    '1' => 'success',
+                    '0' => 'danger',
+                })->formatStateUsing(function ($state) {
+                    return $state == '1' ? 'Active' : 'Inactive';
+                }),
+        ];
+
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('sid')->searchable()->sortable()->label('SID'),
-                Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('mobile')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('admission_date')->date()->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('address')->searchable()->sortable(),
-                // Tables\Columns\TextColumn::make('dob')->date()->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '1' => 'success',
-                        '0' => 'danger',
-                    })->formatStateUsing(function ($state) {
-                        return $state == '1' ? 'Active' : 'Inactive';
-                    }),
-            ])
+            ->columns($columns)
             ->filters([
                 SelectFilter::make('courses')->searchable()
                     ->relationship('courses', 'name', fn (Builder $query) => $query),
                 DateRangeFilter::make('admission_date')
                     ->label('Admission Date')
                     ->timezone('UTC')
-//                    ->startDate(Carbon::now())
-//                    ->endDate(Carbon::now())
                     ->firstDayOfWeek(1)
                     ->alwaysShowCalendar(false)
                     ->setTimePickerOption(true)
@@ -120,21 +124,23 @@ class StudentResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\BulkAction::make('addToCourse')
-                    ->label('Add to Course')
-                    ->action(function (Collection $records, array $data) {
-                        foreach ($records as $record) {
-                            $record->courses()->attach($data['course_id']);
-                        }
-                    })
-                    ->form([
-                        Forms\Components\Select::make('course_id')
-                            ->label('Course')
-                            ->options(Course::all()->pluck('name', 'id'))
-                            ->searchable()
-                            ->required(),
-                    ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('addToCourse')
+                        ->label('Add to Course')
+                        ->action(function (Collection $records, array $data) {
+                            foreach ($records as $record) {
+                                $record->courses()->attach($data['course_id']);
+                            }
+                        })->icon('heroicon-o-user-plus')
+                        ->form([
+                            Forms\Components\Select::make('course_id')
+                                ->label('Course')
+                                ->options(Course::all()->pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                        ]),
+                    ])->authorize(self::isAdmin())->label('Actions'),
             ]);
     }
 
@@ -152,20 +158,5 @@ class StudentResource extends Resource
             'create' => Pages\CreateStudent::route('/create'),
             //'edit' => Pages\EditStudent::route('/{record}/edit'),
         ];
-    }
-
-    public static function canCreate(): bool
-    {
-        return Auth::user()->hasRole('admin');
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return Auth::user()->hasRole('admin');
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return Auth::user()->hasRole('admin');
     }
 }

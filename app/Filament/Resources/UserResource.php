@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use App\Traits\OnlyAdminCanAccess;
 use Filament\Forms;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
@@ -27,6 +28,8 @@ use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
+    use OnlyAdminCanAccess;
+    
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
@@ -48,7 +51,7 @@ class UserResource extends Resource
                     ->required(fn ($livewire): bool => $livewire instanceof CreateUser)
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
                     //->visible(fn ($livewire): bool => $livewire instanceof CreateUser),
-                CheckboxList::make('roles')
+                Select::make('roles')
                     ->relationship('roles', 'name')
                     ->required(),
                 Toggle::make('status')->label('Active')
@@ -108,34 +111,5 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
 //            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }
-
-
-//    public static function canViewAny(): bool
-//    {
-//        return Auth::user()->hasRole('admin');
-//    }
-//
-//    // Override to restrict creating users to admins
-//    public static function canCreate(): bool
-//    {
-//        return Auth::user()->hasRole('admin');
-//    }
-//
-//    // Override to restrict editing users to admins
-//    public static function canEdit(Model $record): bool
-//    {
-//        return Auth::user()->hasRole('admin');
-//    }
-//
-//    // Override to restrict deleting users to admins
-//    public static function canDelete(Model $record): bool
-//    {
-//        return Auth::user()->hasRole('admin');
-//    }
-
-    public static function canAccess(): bool
-    {
-        return Auth::user()->hasRole('admin');
     }
 }
