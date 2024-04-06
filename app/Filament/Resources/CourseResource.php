@@ -31,26 +31,30 @@ class CourseResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Group::make([
-                TextInput::make('name')->required()->columnSpan(2),
-                TextInput::make('code')->required()->unique(ignoreRecord: true),
-                TextInput::make('age_range')->required()->columnSpan(1),
-                TextInput::make('fee')->required()->columnSpan(1),
-            ])->columns([
-                'sm' => 2,
-            ]),
+//            Group::make([
+//                TextInput::make('name')->required()->columnSpan(2),
+//                TextInput::make('code')->required()->unique(ignoreRecord: true),
+//                TextInput::make('age_range')->required()->columnSpan(1),
+//                TextInput::make('fee')->required()->columnSpan(1),
+//            ])->columns([
+//                'sm' => 2,
+//            ]),
 
-            Group::make([
-                Forms\Components\BelongsToSelect::make('course_type')
-                    ->relationship('courseType', 'name')->required(),
-                Textarea::make('description')->required(),
-            ]),
+            Forms\Components\BelongsToSelect::make('course_type')
+                ->relationship('courseType', 'name')->required(),
+
+            TextInput::make('name')->required(),
+            TextInput::make('code')->required()->unique(ignoreRecord: true),
+            TextInput::make('age_range')->required(),
+            TextInput::make('fee')->required(),
 
             Forms\Components\BelongsToManyMultiSelect::make('teachers')
                 ->relationship('teachers', 'name'),
 
             Forms\Components\BelongsToManyMultiSelect::make('students')
                 ->relationship('students', 'name'),
+
+            Textarea::make('description')->required(),
 
             Forms\Components\FileUpload::make('course_image_url')
                 ->label('Course Image')
