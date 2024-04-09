@@ -75,7 +75,7 @@ class AttendanceResource extends Resource
                                 'yesterday' => 'Yesterday',
                                 'this_month' => 'This Month',
                                 'this_year' => 'This Year',
-                            ]),
+                            ])->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
 
@@ -132,7 +132,7 @@ class AttendanceResource extends Resource
                 Filter::make('data')
                     ->form([
                         DatePicker::make('from')->native(false),
-                        DatePicker::make('until'),
+                        DatePicker::make('until')->native(false),
                     ])
                     // ...
                     ->indicateUsing(function (array $data): array {
