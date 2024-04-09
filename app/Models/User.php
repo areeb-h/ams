@@ -84,6 +84,11 @@ class User extends Authenticatable implements FilamentUser
         return str_ends_with($this->email, '@hac.edu.mv') && $this->hasVerifiedEmail();
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
     protected static function booted(): void
     {
         static::created(function ($user) {

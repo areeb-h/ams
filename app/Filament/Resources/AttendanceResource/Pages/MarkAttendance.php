@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MarkAttendance extends EditRecord
 {
-    use AdminAuthorization;
+    //use AdminAuthorization;
 
     protected static string $resource = StudySessionResource::class;
     protected static string $view = 'filament.resources.attendance-resource.pages.mark-attendance';
@@ -30,6 +30,7 @@ class MarkAttendance extends EditRecord
 
     public function mount($record): void
     {
+
         parent::mount($record);
 
         $this->studySession = $this->record;

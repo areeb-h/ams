@@ -18,13 +18,17 @@ class StudySessionPolicy
 //        //
 //    }
 //
-//    /**
-//     * Determine whether the user can view the model.
-//     */
-//    public function view(User $user, StudySession $studySession): bool
-//    {
-//        //
-//    }
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $user, StudySession $studySession): bool
+    {
+        if (self::isAdmin()) {
+            return true;
+        }
+
+        return $studySession->teachers->contains($user->teacher->id);
+    }
 //
 //    /**
 //     * Determine whether the user can create models.
@@ -37,10 +41,14 @@ class StudySessionPolicy
 //    /**
 //     * Determine whether the user can update the model.
 //     */
-//    public function update(User $user, StudySession $studySession): bool
-//    {
-//        //
-//    }
+    public function update(User $user, StudySession $studySession): bool
+    {
+        if (self::isAdmin()) {
+            return true;
+        }
+
+        return $studySession->teachers->contains($user->teacher->id);
+    }
 //
 //    /**
 //     * Determine whether the user can delete the model.

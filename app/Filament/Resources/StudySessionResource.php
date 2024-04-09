@@ -20,7 +20,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Gate;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class StudySessionResource extends Resource
@@ -163,6 +165,16 @@ class StudySessionResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Gate::allows('markAttendance', $record);
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return Gate::allows('markAttendance', $record);
     }
 
     public static function getPages(): array

@@ -5,6 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AttendanceResource\Pages;
 use App\Filament\Resources\AttendanceResource\RelationManagers;
 use App\Models\Student;
+use App\Models\Teacher;
+use BladeUI\Icons\Components\Icon;
+use Carbon\Carbon;
 use Filament\Forms\Components\BelongsToSelect;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
@@ -12,6 +15,8 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\Attendance;
 use App\Models\StudySession;
@@ -25,6 +30,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -53,44 +59,126 @@ class AttendanceResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('studyGroup')->searchable()->label('Class')
-                    ->relationship('studyGroup', 'name'),
-                DateRangeFilter::make('date')
-                    ->label('Date range')
-                    ->timezone('UTC')
-                    ->firstDayOfWeek(1)
-                    ->alwaysShowCalendar()
-                    ->setTimePickerOption()
-                    ->setTimePickerIncrementOption(2)
-                    ->setAutoApplyOption()
-                    ->setLinkedCalendarsOption()
-                    ->disabledDates(['array of Dates'])
-                    ->minDate(\Carbon\Carbon::now()->subMonth())
-                    ->maxDate(\Carbon\Carbon::now()->addMonth())
-                    ->displayFormat('YYYY-MM-DD')
-                    ->withIndicator()
-                    ->ranges([
-                        'Today' => [now()->startOfDay(), now()->endOfDay()],
-                        'Yesterday' => [now()->subDay()->startOfDay(), now()->subDay()->endOfDay()],
-                        'This Month [' . now()->format('F') . ']' => [now()->startOfMonth(), now()->endOfMonth()],
-                        'This Year [' . now()->format('Y') . ']' => [now()->startOfYear(), now()->endOfYear()],
-                        'Last Year [' . now()->subYear()->format('Y') . ']' => [now()->subYear()->startOfYear(), now()->endOfYear()],
+                    ->relationship('studyGroup', 'name')
+                    ->preload(),
+
+                SelectFilter::make('teacher')
+                    ->relationship('teachers', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                Filter::make('date_range')
+                    ->form([
+                        Select::make('dateRange')
+                            ->options([
+                                'today' => 'Today',
+                                'yesterday' => 'Yesterday',
+                                'this_month' => 'This Month',
+                                'this_year' => 'This Year',
+                            ]),
                     ])
-                    ->useRangeLabels()
-                    ->disableCustomRange()
-                    ->separator(' to ')
                     ->query(function (Builder $query, array $data): Builder {
 
-                        $attDate = $data['date'] ?? null;
+                        $selectedOption = $data['dateRange'] ?? null;
 
-                        [$startDate, $endDate] = array_pad(explode(' to ', $attDate ?? '', 2), 2, null);
-
-                        if ($startDate && $endDate) {
-                            return $query->whereBetween('date', [$startDate, $endDate]);
+                        switch ($selectedOption) {
+                            case 'today':
+                                $startDate = now()->startOfDay();
+                                $endDate = now()->endOfDay();
+                                break;
+                            case 'yesterday':
+                                $startDate = now()->subDay()->startOfDay();
+                                $endDate = now()->subDay()->endOfDay();
+                                break;
+                            case 'this_month':
+                                $startDate = now()->startOfMonth();
+                                $endDate = now()->endOfMonth();
+                                break;
+                            case 'this_year':
+                                $startDate = now()->startOfYear();
+                                $endDate = now()->endOfYear();
+                                break;
+                            default:
+                                $startDate = null;
+                                $endDate = null;
+                                break;
                         }
 
-                        return $query;
-                    })->withIndicator(),
-            ])
+                        return $query
+                            ->when(
+                                $startDate,
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '>=', $startDate),
+                            )
+                            ->when(
+                                $endDate,
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '<=', $endDate),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        $selectedKey = $data['dateRange'] ?? null;
+
+                        if ($selectedKey) {
+                            // Replace underscores with spaces and capitalize the first letter of each word
+                            $formattedLabel = ucwords(str_replace('_', ' ', $selectedKey));
+
+                            // Create an indicator with the formatted label
+                            $indicators[] = Indicator::make('Period [' . $formattedLabel . ']')
+                                ->color('primary'); // Example: Set the color of the indicator
+                        }
+                        return $indicators;
+                    }),
+                Filter::make('data')
+                    ->form([
+                        DatePicker::make('from')->native(false),
+                        DatePicker::make('until'),
+                    ])
+                    // ...
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('From ' . Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
+
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Until ' . Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
+
+                        return $indicators;
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                            );
+                    })
+
+//                SelectFilter::make('teachers')
+//                    ->options(function () {
+//                        return ['mine' => 'Mine'] + Teacher::pluck('name', 'id')->toArray();
+//                    })
+//                    ->query(function (Builder $query, $data): Builder {
+//                        if ($data['teachers'] === 'mine') {
+//                            return $query->whereHas('teachers', function ($query) {
+//                                $query->where('teachers.id', Auth::user()->teacher->id);
+//                            });
+//                        }
+//
+//                        return $query->whereHas('teachers', function ($query) use ($data) {
+//                            $query->where('teachers.id', $data['teachers']);
+//                        });
+//                    })
+        ])
+            ->defaultSort('date', 'desc') // Sort by date (
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->url(fn ($record) => route('filament.admin.resources.attendances.mark-attendance', ['record' => $record->id]))
@@ -107,7 +195,7 @@ class AttendanceResource extends Resource
 //                        // Check if the current teacher is associated with the session
 //                        return $record->teachers->contains($teacherId);
 //                    }),
-            ->disabled(fn ($record) => !$record->teachers->contains(auth()->user()->teacher->id ?? null)),
+            //->disabled(fn ($record) => !$record->teachers->contains(auth()->user()->teacher->id ?? null)),
             ])
             ->selectable(true)
             ->bulkActions([
@@ -130,11 +218,15 @@ class AttendanceResource extends Resource
         ];
     }
 
-//    public static function canEdit($record): bool
-//    {
-//        return Gate::allows('markAttendance', $record);
-//    }
+    public static function canEdit(Model $record): bool
+    {
+        return Gate::allows('markAttendance', $record);
+    }
 
+    public static function canView(Model $record): bool
+    {
+        return true;
+    }
 
     public static function getPages(): array
     {
