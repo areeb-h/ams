@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class StudySession extends Model
@@ -61,49 +62,22 @@ class StudySession extends Model
         return $this->hasMany(Attendance::class);
     }
 
+//    public function getAttendancesAttribute(): Collection
+//    {
+//        return $this->students()->get();
+//    }
+
     public function getAttendanceSummaryAttribute()
     {
-        $total = $this->attendances->count();
-        $attended = $this->attendances->where('attended', 1)->count();
+        $total = $this->students()->count();
+        $attended = $this->students()->wherePivot('attended', 1)->count();
 
         return "{$attended}/{$total}";
     }
 
-//    protected static function booted(): void
-//    {
-//        static::saving(function ($studySession) {
-//            if ($studySession->study_group_id && $studySession->date) {
-//                $studyGroup = StudyGroup::find($studySession->study_group_id);
-//                $studySession->from_time = $studyGroup->from_time;
-//                $studySession->to_time = $studyGroup->to_time;
-//            }
-//        });
-//    }
-
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'attendances')
-            ->withPivot('attended');
-    }
-
-    protected static function booted()
-    {
-        static::saving(function ($studySession) {
-            $selectedStudentIds = request()->input('student_ids', []);
-
-            foreach ($selectedStudentIds as $studentId) {
-                $exists = DB::table('attendances')->where([
-                    'study_session_id' => $studySession->id,
-                    'student_id' => $studentId,
-                ])->exists();
-
-                if (!$exists) {
-                    Attendance::create([
-                        'study_session_id' => $studySession->id,
-                        'student_id' => $studentId,
-                    ]);
-                }
-            }
-        });
+            ->withPivot('attended', 'status');
     }
 }

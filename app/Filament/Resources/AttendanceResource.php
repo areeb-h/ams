@@ -27,6 +27,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class AttendanceResource extends Resource
@@ -93,8 +94,22 @@ class AttendanceResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->url(fn ($record) => route('filament.admin.resources.attendances.mark-attendance', ['record' => $record->id]))
-                    ->icon('heroicon-o-pencil')->label('Mark'),
+                    ->icon('heroicon-o-pencil')->label('Mark')
+//                    ->visible(function ($record) {
+//                        // Assuming every user has a 'teacher' relationship or attribute
+//                        $teacherId = auth()->user()->teacher->id ?? null;
+//
+//                        // If there's no teacher ID available for the user, hide the action
+//                        if (!$teacherId) {
+//                            return false;
+//                        }
+//
+//                        // Check if the current teacher is associated with the session
+//                        return $record->teachers->contains($teacherId);
+//                    }),
+            ->disabled(fn ($record) => !$record->teachers->contains(auth()->user()->teacher->id ?? null)),
             ])
+            ->selectable(true)
             ->bulkActions([
 //                BulkAction::make('toggle_attended')
 //                    ->label('Toggle Attended Status')
@@ -115,10 +130,11 @@ class AttendanceResource extends Resource
         ];
     }
 
-    public static function canCreate(): bool
-    {
-        return true;
-    }
+//    public static function canEdit($record): bool
+//    {
+//        return Gate::allows('markAttendance', $record);
+//    }
+
 
     public static function getPages(): array
     {
@@ -126,7 +142,6 @@ class AttendanceResource extends Resource
             'index' => Pages\ListAttendances::route('/'),
             'create' => Pages\CreateAttendance::route('/create'),
             'mark-attendance' => Pages\MarkAttendance::route('/{record}/mark-attendance'),
-            // 'edit' => Pages\EditAttendance::route('/{record}/edit'),
         ];
     }
 }

@@ -103,8 +103,8 @@ class StudyGroupResource extends Resource
     protected static function generateGroupName($get, $record): string
     {
 
-        $course_code = Course::find($get('course'))->code; //$record->course->first();
-        $location_code = Location::find($get('location'))->code;
+        $course_code = Course::find($get('course'))?->code;
+        $location_code = Location::find($get('location'))?->code;
         $daysCollection = Day::findMany($get('days'));
 
         $fromTime = $get('from_time') ? Carbon::parse($get('from_time'))->format('Hi') : '';
@@ -115,9 +115,6 @@ class StudyGroupResource extends Resource
 
         return strtoupper($name);
     }
-
-
-
 
     public static function table(Table $table): Table
     {

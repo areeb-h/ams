@@ -66,16 +66,6 @@ class CreateAttendance extends CreateRecord
         return 'New Attendance Sheet';
     }
 
-    public function getBuss(): string
-    {
-        return 'New Attendance ';
-    }
-
-    public static function createButtonLabel(): string
-    {
-        return 'YourButtonTextHere';
-    }
-
     public function getBreadcrumbs(): array
     {
         return [

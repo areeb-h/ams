@@ -17,5 +17,19 @@ Route::prefix('/dashboard/attendances/')->name('filament.admin.resources.attenda
 });
 
 
+Route::get('/pdf', function () {
+    $studySession = \App\Models\StudySession::findOrFail(33);
+
+    $className = $studySession['studyGroup']['name'];
+    $sessionDate = $studySession['date'];
+    $sessionFromTime = $studySession['from_time'];
+    $sessionToTime = $studySession['to_time'];
+    $students = $studySession->students()->get();
+
+    return view('test', compact(
+        'studySession', 'students', 'sessionDate', 'sessionFromTime', 'sessionToTime'
+    ));
+})->name('custom.route');
+
 //Route::get('/dashboard/study-groups/fetch-students', [StudySessionController::class, 'fetchStudents'])->name('fetch.students');
 

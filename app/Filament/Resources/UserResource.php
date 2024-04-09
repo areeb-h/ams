@@ -29,7 +29,7 @@ use Spatie\Permission\Models\Role;
 class UserResource extends Resource
 {
     use OnlyAdminCanAccess;
-    
+
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
@@ -51,7 +51,7 @@ class UserResource extends Resource
                     ->required(fn ($livewire): bool => $livewire instanceof CreateUser)
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
                     //->visible(fn ($livewire): bool => $livewire instanceof CreateUser),
-                Select::make('roles')
+                Select::make('roles')->label('Role')
                     ->relationship('roles', 'name')
                     ->required(),
                 Toggle::make('status')->label('Active')
@@ -65,7 +65,7 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('email'),
-                TextColumn::make('roles.name')->label('Roles'),
+                TextColumn::make('roles.name')->label('Role'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {

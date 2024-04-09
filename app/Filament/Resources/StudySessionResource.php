@@ -51,6 +51,7 @@ class StudySessionResource extends Resource
                     }),
                 DatePicker::make('date')
                     ->label('Date')
+                    ->native(false)
                     ->required(),
                 DateTimePicker::make('from_time')
                     ->prefix('Starts at')
@@ -63,17 +64,24 @@ class StudySessionResource extends Resource
                     ->withoutDate()
                     ->withoutSeconds()
                     ->after('from_time'),
-                Textarea::make('description')
-                    ->label('Description'),
+                BelongsToManyMultiSelect::make('teacher_ids')
+                    ->relationship('teachers', 'name')
+                    ->options(function (callable $get) {
+                        $studyGroupId = $get('study_group_id');
+                        return $studyGroupId ? StudyGroup::find($studyGroupId)->teachers()->pluck('name', 'id') : [];
+                    })
+                    ->visible(fn ($get) => $get('study_group_id') !== null)
+                    ->reactive(),
                 BelongsToManyMultiSelect::make('student_ids')
                     ->relationship('students', 'name')
                     ->options(function (callable $get) {
-                        // Fetch students based on the study group
                         $studyGroupId = $get('study_group_id');
                         return $studyGroupId ? StudyGroup::find($studyGroupId)->students()->pluck('name', 'id') : [];
                     })
-                    ->visible(fn ($get) => $get('study_group_id') && $get('id') !== null)
+                    ->visible(fn ($get) => $get('study_group_id') !== null)
                     ->reactive(),
+                Textarea::make('description')
+                    ->label('Description'),
             ]);
     }
 

@@ -55,20 +55,38 @@ class StudentResource extends Resource
         $isAdmin = auth()->user()->hasRole('admin');
 
         $columns = [
-            Tables\Columns\TextColumn::make('sid')->searchable()->sortable()->label('SID')->visible($isAdmin),
+            Tables\Columns\TextColumn::make('sid')->searchable()->sortable()->label('SID')->toggleable(isToggledHiddenByDefault: !self::isAdmin()),
+
             Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+
             Tables\Columns\TextColumn::make('mobile')->searchable()->sortable()->copyable(),
-            Tables\Columns\TextColumn::make('admission_date')->date()->searchable()->sortable()->visible($isAdmin),
-            Tables\Columns\TextColumn::make('address')->searchable()->sortable(),
-            Tables\Columns\TextColumn::make('attendance'),
-            Tables\Columns\TextColumn::make('status')->visible($isAdmin)
+
+            Tables\Columns\TextColumn::make('address')->searchable()->sortable()->toggleable(isToggledHiddenByDefault: !self::isAdmin()),
+
+            Tables\Columns\TextColumn::make('admission_date')->date()->searchable()->sortable()->toggleable(isToggledHiddenByDefault: true),
+
+            Tables\Columns\TextColumn::make('attendance')->label('Att.')->copyable(),
+
+            Tables\Columns\TextColumn::make('attendance_score')
+                ->label('Att. score')
                 ->badge()
-                ->color(fn (string $state): string => match ($state) {
-                    '1' => 'success',
-                    '0' => 'danger',
-                })->formatStateUsing(function ($state) {
-                    return $state == '1' ? 'Active' : 'Inactive';
-                }),
+                ->colors([
+                    'danger' => fn ($state): bool => $state < 50,
+                    'warning' => fn ($state): bool => $state >= 50 && $state < 75,
+                    'success' => fn ($state): bool => $state >= 75,
+                ])
+                ->copyable()
+                ->sortable()
+                ->alignCenter(),
+
+//            Tables\Columns\TextColumn::make('status')->visible($isAdmin)
+//                ->badge()
+//                ->color(fn (string $state): string => match ($state) {
+//                    '1' => 'success',
+//                    '0' => 'danger',
+//                })->formatStateUsing(function ($state) {
+//                    return $state == '1' ? 'Active' : 'Inactive';
+//                }),
         ];
 
         return $table

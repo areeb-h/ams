@@ -50,20 +50,43 @@ class Student extends Model
             ->withPivot('attended');
     }
 
-    public function getAttendanceAttribute(): string
+    public function getAttendanceAttribute()
     {
-        $attended = $this->studySessions()->where('attended', 1)->count();
-        $totalClasses = $this->studySessions()->count();
-
-        if ($totalClasses === 0) {
-            return 'N/A';
+        if (is_null($this->attendance_score)) {
+            return '-';
         }
 
-        $attendancePercentage = ($attended / $totalClasses) * 100;
-
-        $attendancePercentageFormatted = number_format($attendancePercentage, 1) . '%';
-
-        return "$attended/$totalClasses | $attendancePercentageFormatted";
+        return "{$this->attended_sessions}/{$this->total_sessions}";
     }
+
+
+    public function updateAttendanceDetails(): void
+    {
+        $totalSessions = $this->studySessions()->count();
+
+        $fullyAttendedSessions = $this->studySessions()
+            ->wherePivot('attended', 1)
+            ->wherePivot('status', '!=', 'late')->count();
+
+        $lateAttendedSessions = $this->studySessions()
+                ->wherePivot('attended', 1)
+                ->wherePivot('status', 'late')->count() * 0.5;
+
+        $attendedSessions = $fullyAttendedSessions + $lateAttendedSessions;
+
+        $this->attended_sessions = (int) $attendedSessions;
+        $this->total_sessions = $totalSessions;
+
+        if ($totalSessions > 0) {
+            $attendancePercentage = ($attendedSessions / $totalSessions) * 100;
+        } else {
+            $attendancePercentage = null;
+        }
+
+        $this->attendance_score = $attendancePercentage;
+        $this->save();
+    }
+
+
 
 }

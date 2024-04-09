@@ -25,27 +25,14 @@
                         {{ $student->name }}
                     </div>
 
-
                     <div @class('flex gap-4 items-center')>
-{{--                        @if($attendances->where('student_id', $student->id)->first()?->attended)--}}
-{{--                            @if($attendances->where('student_id', $student->id)->first()?->status === 'late')--}}
-{{--                                <x-filament::badge :color="\Filament\Support\Colors\Color::Orange">Late</x-filament::badge>--}}
-{{--                            @endif--}}
-{{--                            <x-filament::badge :color="\Filament\Support\Colors\Color::Green">--}}
-{{--                                {{ $attendances->where('student_id', $student->id)->first()?->attended ? 'Attended' : 'Absent' }}--}}
-{{--                            </x-filament::badge>--}}
-{{--                        @else--}}
-{{--                            <x-filament::badge :color="\Filament\Support\Colors\Color::Red">--}}
-{{--                                {{ $attendances->where('student_id', $student->id)->first()?->attended ? 'Attended' : 'Absent' }}--}}
-{{--                            </x-filament::badge>--}}
-{{--                        @endif--}}
                             <div @class('flex gap-4 items-center')>
                                 <div @class('p-2 rounded-full border')>
                                     <label @class('flex items-center cursor-pointer gap-1')>
                                         <div @class('text-xs font-medium text-gray-700 px-1')>Late</div>
                                         <div @class('relative')>
-                                            <input type="checkbox" name="late[{{ $student->id }}]" value="1" @class('sr-only')
-                                                {{ $attendances->where('student_id', $student->id)->first()?->status === 'late' ? 'checked="checked"' : '' }}>
+                                            <input type="checkbox" name="late[{{ $student->id }}]" value="1" @class('sr-only'){{ $student->pivot->status == 'late'? 'checked' : ''}} />
+
                                             <div @class('w-8 h-4 bg-gray-200 rounded-full shadow-inner')></div>
                                             <div @class('dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition')></div>
                                         </div>
@@ -53,17 +40,23 @@
                                 </div>
                                 <x-filament::input.checkbox
                                     @class('p-3 rounded-md') name="attendance[{{ $student->id }}]" value="1"
-                                    :checked="$attendances->where('student_id', $student->id)->first()?->attended" />
+                                    :checked=" $student->pivot->attended == 1 " />
                             </div>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        <div @class('flex gap-4')>
+        <div @class('flex flex-col sm:flex-row gap-4')>
             <x-filament::button :color="\Filament\Support\Colors\Color::Teal" type="submit">Save Attendance</x-filament::button>
             <x-filament::button :color="\Filament\Support\Colors\Color::Gray" onclick="goBack();" type="button">
                 Go Back
+            </x-filament::button>
+            <x-filament::button
+                :color="\Filament\Support\Colors\Color::Blue"
+                wire:click="generateSheet({{$studySession->id}})"
+                type="button">
+                Download
             </x-filament::button>
         </div>
     </form>
