@@ -83,7 +83,7 @@ class Student extends Model
             $attendancePercentage = null;
         }
 
-        $this->attendance_score = $attendancePercentage;
+        $this->attendance_score = (int) $attendancePercentage ;
         $this->save();
     }
 

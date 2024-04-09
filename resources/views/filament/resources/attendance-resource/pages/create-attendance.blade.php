@@ -11,7 +11,7 @@
             <div class="w-full">
                 <label for="studyGroupSelector" class="block text-sm font-semibold mb-2">Select a Class</label>
                 <select id="studyGroupSelector" name="study_group"
-                        class="mt-1 block w-full pl-3 pr-10 py-2 dark:bg-gray-900 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 dark:bg-gray-900 dark:border-gray-600 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         wire:model="studyGroupId"
                         wire:change="fetchStudents($event.target.value)"
                 >

@@ -15,7 +15,6 @@ use Filament\Tables\Actions\EditAction;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use JetBrains\PhpStorm\NoReturn;
-use Spatie\LaravelPdf\Facades\Pdf;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MarkAttendance extends EditRecord
