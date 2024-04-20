@@ -93,7 +93,6 @@ class StudyGroupResource extends Resource
     protected static function updateGroupNameBasedOnState(): Closure
     {
         return function ($state, $set, $get, $record) {
-            // Check if a state is set to prevent unnecessary operations
             if (!$state) return;
 
             $set('name', self::generateGroupName($get, $record));
@@ -102,9 +101,8 @@ class StudyGroupResource extends Resource
 
     protected static function generateGroupName($get, $record): string
     {
-
-        $course_code = Course::find($get('course'))?->code;
-        $location_code = Location::find($get('location'))?->code;
+        $course_code = Course::find($get('course'))->first()->code?? $record->course;
+        $location_code = Location::find($get('location'))->first()->code?? $record->location;
         $daysCollection = Day::findMany($get('days'));
 
         $fromTime = $get('from_time') ? Carbon::parse($get('from_time'))->format('Hi') : '';
@@ -120,15 +118,10 @@ class StudyGroupResource extends Resource
     {
         return $table
             ->columns([
-//                Tables\Columns\TextColumn::make('name')
-//                    ->label('Name')->searchable(),
                 Tables\Columns\TextColumn::make('course.name')
                     ->label('Course')->searchable(),
                 Tables\Columns\TextColumn::make('location.code')
                     ->label('Location'),
-//                Tables\Columns\TextColumn::make('from_time')
-//                    ->date()
-//                    ->label('Date'),
                 Tables\Columns\TextColumn::make('from_time')
                     ->dateTime('H:i')
                     ->label('From'),

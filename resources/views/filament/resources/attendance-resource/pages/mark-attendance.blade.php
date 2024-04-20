@@ -11,7 +11,6 @@
 
     <form
         method="POST" @class('flex flex-col gap-8')
-{{--        action="{{ route('filament.admin.resources.attendances.save-attendance', ['session' => $sessionId]) }}"--}}
         action="{{ route('filament.admin.resources.attendances.mark-attendance.save', ['record' => $sessionId]) }}"
     >
         @csrf

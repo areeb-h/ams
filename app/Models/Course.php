@@ -63,6 +63,13 @@ class Course extends Model
         return $this->belongsToMany(StudyGroup::class);
     }
 
+    // In your Course model
+//    public function getCourseImageUrlAttribute($value): \Illuminate\Foundation\Application|string|\Illuminate\Contracts\Routing\UrlGenerator|\Illuminate\Contracts\Foundation\Application|null
+//    {
+//        return $value ? url("storage/course_images/{$value}") : null;
+//    }
+
+
 //    public function setCourseImageUrlAttribute($value): void
 //    {
 //        if ($value instanceof UploadedFile) {
