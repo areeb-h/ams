@@ -5,17 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): JsonResponse
     {
-        $users = User::all();
+        $perPage = $request['perPage']?? null;
+        $users = User::paginate($perPage?? 5);
 
-        return view('user.index', compact('users'));
+        return response()->json($users);
     }
 
     public function create(Request $request): View
@@ -42,13 +44,15 @@ class UserController extends Controller
         return view('user.edit', compact('user'));
     }
 
-    public function update(UserUpdateRequest $request, User $user): RedirectResponse
+    public function update(UserUpdateRequest $request, User $user): JsonResponse
     {
         $user->update($request->validated());
 
-        $request->session()->flash('user.id', $user->id);
+        //return $this->index();
 
-        return redirect()->route('users.index');
+        return response()->json('success');
+
+        //return redirect()->route('dashboard.users.index')->with('success');
     }
 
     public function destroy(Request $request, User $user): RedirectResponse

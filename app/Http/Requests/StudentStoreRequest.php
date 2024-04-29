@@ -21,7 +21,7 @@ class StudentStoreRequest extends FormRequest
             'mobile' => ['sometimes'],
             'dob' => ['sometimes'],
             'address' => ['sometimes'],
-            'status' => ['required', 'string'],
+            'status' => ['sometimes', 'string'],
             'sid' => ['required', 'string', 'unique:students'],
         ];
     }

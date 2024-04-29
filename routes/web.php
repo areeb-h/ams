@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudySessionController;
 use App\Http\Controllers\Website\WebsiteController;
 use Illuminate\Support\Facades\Route;

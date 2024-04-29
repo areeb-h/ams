@@ -16,8 +16,10 @@ class UserUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string'],
             'email' => ['required', 'email'],
+            'type' => ['required', 'string'],
+            'status' => ['required', 'string'],
             'email_verified_at' => ['nullable'],
-            'password' => ['required', 'password'],
+            'password' => ['sometimes', 'string'],
             'two_factor_secret' => ['nullable', 'string'],
             'two_factor_recovery_codes' => ['nullable', 'string'],
             'two_factor_confirmed_at' => ['nullable'],

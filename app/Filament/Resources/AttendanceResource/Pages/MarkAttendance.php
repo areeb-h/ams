@@ -19,8 +19,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MarkAttendance extends EditRecord
 {
-    // use AdminAuthorization;
-
     protected static string $resource = StudySessionResource::class;
     protected static string $view = 'filament.resources.attendance-resource.pages.mark-attendance';
 

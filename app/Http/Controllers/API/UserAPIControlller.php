@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\CourseStoreRequest;
 use App\Http\Requests\CourseUpdateRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\CourseResource;
 use App\Models\Course;
 use App\Models\User;
@@ -15,18 +17,24 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
-class CourseController extends Controller
+class UserAPIControlller extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): JsonResponse
     {
         $perPage = $request['perPage']?? null;
-        $courses = Course::paginate($perPage?? 5);
+        $users = User::paginate($perPage?? 5);
 
-        return CourseResource::collection($courses);
+        return response()->json($users);
     }
 
     public function show(Request $request, Course $course): JsonResponse
     {
         return response()->json($course);
+    }
+
+    public function update(UserUpdateRequest $request, User $user): JsonResponse
+    {
+        $user->update($request->validated());
+        return response()->json('success');
     }
 }
