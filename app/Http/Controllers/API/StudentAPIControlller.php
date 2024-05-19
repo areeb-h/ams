@@ -47,7 +47,7 @@ class StudentAPIControlller extends Controller
             $query->orderBy($sortBy, $sortDirection);
         }
 
-        $perPage = $request->input('perPage', 5);
+        $perPage = $request->input('perPage', 10);
         $students = $query->paginate($perPage);
 
         return StudentResource::collection($students)->response();
@@ -58,7 +58,9 @@ class StudentAPIControlller extends Controller
      */
     public function store(StudentStoreRequest $request): JsonResponse
     {
-        $this->authorize('create');
+//        $this->authorize('create', Student::class);
+        $this->authorize('create', Student::class);
+
 
         Student::create($request->validated(), ['status' => 'active']);
         return response()->json('success');
@@ -69,7 +71,7 @@ class StudentAPIControlller extends Controller
      */
     public function update(StudentUpdateRequest $request, Student $student): JsonResponse
     {
-        $this->authorize('update', $student);
+//        $this->authorize('update', $student);
 
         $student->update($request->validated());
         return response()->json('success');

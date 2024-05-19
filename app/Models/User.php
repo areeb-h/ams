@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Searchable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,17 +11,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable // implements FilamentUser
 {
     use HasApiTokens;
     use HasFactory;
     use Notifiable;
-    use TwoFactorAuthenticatable;
     use HasRoles;
+    use HasPermissions;
+    use Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -68,6 +70,11 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    protected array $searchable = [
+        'name',
+        'email',
+    ];
+
     public function getProfilePhotoUrlAttribute(): string
     {
         $hash = md5(strtolower(trim($this->email)));
@@ -96,5 +103,4 @@ class User extends Authenticatable implements FilamentUser
             $user->save();
         });
     }
-
 }
